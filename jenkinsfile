@@ -11,14 +11,7 @@ pipeline {
 		WORKSPACE_PATH = '/home/ec2-user/jenkins_home/workspace'
 	}
 
-	options {
-		// Keep maximum 10 archievd artifacts
-		buildDiscarder(logRotator(numToKeepStr:'10', artifactNumToKeepStr:'10'))
-		// No simultaneous builds
-		disableConcurrentBuilds()
-		durabilityHint('MAX_SURVIVABILITY') // PERFORMANCE_OPTIMIZED or SURVIVABLE_NONATOMIC
-	}
-
+	
 	stages {
 		stage('Install packages') {
 			steps {
@@ -30,8 +23,8 @@ pipeline {
 		stage('Build') {
 			steps {
 				echo "Building ..."
-				echo "Running job: ${env.JOB_NAME}\nBuild: ${env.BUILD_ID} - ${env.BUILD_URL}\nPipeline: ${env.RUN_DISPALY_URL}"
-				sh 'npm run build-uat'
+				
+				sh 'npm run build'
 			}
 		}
 		
