@@ -1,14 +1,14 @@
 pipeline {
 	agent {
-		docker {
+		docker{
 			image 'node:14.16.0'
 		}
+		
 	}
 
 	environment {
-		CI = 'true'		
-		BUCKET_NAME = 's3://jrproject3web'
-		WORKSPACE_PATH = '/var/jenkins_home/workspace/project3.dist'
+		BUCKET_NAME = 's3://jrproject3web/project3/'
+		WORKSPACE_PATH = '/var/jenkins_home/workspace/12/dist' //123 pipeline project name
 	}
 
 	
@@ -16,35 +16,46 @@ pipeline {
 		stage('Install packages') {
 			steps {
 				echo "Installing packages ..."
-				// Install the packages from package.json
 				sh 'npm install'
 			}
 		}
 		stage('Build') {
 			steps {
 				echo "Building ..."
-				
 				sh 'npm run build'
 			}
 		}
-		
+	
+		}
 		stage('Install AWS CLI') {
 			steps {
-				echo "Installing AWS CLI ..."
-				// Insall awscli in Jenkins contianer
-				sh 'apt-get update'
+				echo "Installing AWS CLI ..."				
+				sh 'apt update'
 				sh 'apt install python3-pip -y'
 				sh 'pip3 install awscli --upgrade'
 			}
 		}
-		stage('Deploy to s3') {
-			sh 'aws s3 rm "${BUCKET_NAME}" --recursive' // ${BUCKET_NAME} is also fine.
-		// Copy the static files from workspace to the S3 bucket created before
-		sh 'aws s3 cp "${WORKSPACE_PATH}" "${BUCKET_NAME}" --recursive --acl public-read'
+		stage('Deploy to S3') {
+			steps{
+				sh 'aws s3 rm "${BUCKET_NAME}" --recursive' 	
+           		sh 'aws s3 cp "${WORKSPACE_PATH}" "${BUCKET_NAME}" --recursive --acl public-read'
+              
+              
+          }
 		}
 	}
 
-	
+	post {
+		success {
+			echo "Success."
+			
+		}
+		failure {
+			echo "Failure."
+			
+		}
+	}
 }
+
 
 
