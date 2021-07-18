@@ -17,13 +17,7 @@ pipeline {
                 sh 'npm install'
             }
         }
-        stage('Build') {
-            steps {
-                echo 'Building ...'
-                sh 'npm run build'
-            }
-        }
-
+        
         stage('Install AWS CLI') {
             steps {
                 echo 'Installing AWS CLI ...'
