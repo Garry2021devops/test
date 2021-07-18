@@ -1,61 +1,53 @@
 pipeline {
-	agent {
-		docker{
-			image 'node:14.16.0'
-		}
-		
-	}
+    agent {
+        docker {
+            image 'node:14.16.0'
+        }
+    }
 
-	environment {
-		BUCKET_NAME = 's3://jrproject3web/project3/'
-		WORKSPACE_PATH = '/var/jenkins_home/workspace/12/dist' //123 pipeline project name
-	}
+    environment {
+        BUCKET_NAME = 's3://jrproject3web/project3/'
+        WORKSPACE_PATH = '/var/jenkins_home/workspace/12/dist' //123 pipeline project name
+    }
 
-	
-	stages {
-		stage('Install packages') {
-			steps {
-				echo "Installing packages ..."
-				sh 'npm install'
-			}
-		}
-		stage('Build') {
-			steps {
-				echo "Building ..."
-				sh 'npm run build'
-			}
-		}
-	
-		
-		stage('Install AWS CLI') {
-			steps {
-				echo "Installing AWS CLI ..."				
-				sh 'apt update'
-				sh 'apt install python3-pip -y'
-				sh 'pip3 install awscli --upgrade'
-			}
-		}
-		stage('Deploy to S3') {
-			steps{
-				sh 'aws s3 rm "${BUCKET_NAME}" --recursive' 	
-           		sh 'aws s3 cp "${WORKSPACE_PATH}" "${BUCKET_NAME}" --recursive --acl public-read'
-              
-              
-          }
-		}
-	}
+    stages {
+        stage('Install packages') {
+            steps {
+                echo 'Installing packages ...'
+                sh 'npm install'
+            }
+        }
+        stage('Build') {
+            steps {
+                echo 'Building ...'
+                sh 'npm run build'
+            }
+        }
 
-	post {
-		success {
-			echo "Success."
-			
-		}
-		failure {
-			echo "Failure."
-			
-		}
-	}
+        stage('Install AWS CLI') {
+            steps {
+                echo 'Installing AWS CLI ...'
+                sh 'apt update'
+                sh 'apt install python3-pip -y'
+                sh 'pip3 install awscli --upgrade'
+            }
+        }
+        stage('Deploy to S3') {
+            steps {
+                withAWS(credentials: 'AWS', region: 'ap-southeast-2') {
+                    sh 'aws s3 rm "${BUCKET_NAME}" --recursive'
+                    sh 'aws s3 cp "${WORKSPACE_PATH}" "${BUCKET_NAME}" --recursive --acl public-read'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Success.'
+        }
+        failure {
+            echo 'Failure.'
+        }
+    }
 }
-
-
-
