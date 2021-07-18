@@ -18,6 +18,13 @@ pipeline {
             }
         }
         
+        stage('Build') {
+            steps {
+                echo 'Building ...'
+                sh 'npm run build'
+            }
+        }
+        
         stage('Install AWS CLI') {
             steps {
                 echo 'Installing AWS CLI ...'
@@ -26,6 +33,7 @@ pipeline {
                 sh 'pip3 install awscli --upgrade'
             }
         }
+        
         stage('Deploy to S3') {
             steps {
                 withAWS(credentials: 'AWS', region: 'ap-southeast-2') {
